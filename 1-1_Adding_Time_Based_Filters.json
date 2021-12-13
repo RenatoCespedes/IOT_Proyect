@@ -1,0 +1,172 @@
+[
+    {
+        "id": "7a5f4958f97241f9",
+        "type": "tab",
+        "label": "Flow 5",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "973440d9c583245b",
+        "type": "function",
+        "z": "7a5f4958f97241f9",
+        "name": "create 'AFTER' query",
+        "func": "// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n msg.req.authFilter = 1;\n// wildcard used for API query is * and this needs to be converted into SQL wildcard character %\nmsg.topic = \"SELECT id,topic,payload,timestamp\" +\n\" FROM thingData WHERE\" +\n\" topic LIKE '\" + msg.req.params.topic.replace(/\\*/g, \"%\") + \"'\" +\n\" AND\" +\n\" timestamp >= '\" + msg.req.params.time + \"'\" +\n\" AND deleted=0\" +\n\" AND (\" + msg.req.authFilter + \")\" +\n\" ORDER BY ID DESC\" +\n\" LIMIT \" + msg.req.params.count + \";\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 200,
+        "wires": [
+            [
+                "adb5b0dd1885c2ad"
+            ]
+        ]
+    },
+    {
+        "id": "086bce34a36f2aab",
+        "type": "function",
+        "z": "7a5f4958f97241f9",
+        "name": "create 'BEFORE' query",
+        "func": "// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n msg.req.authFilter = 1;\n// wildcard used for API query is * and this needs to be converted into SQL wildcard character %\nmsg.topic = \"SELECT id,topic,payload,timestamp\" +\n\" FROM thingData WHERE\" +\n\" topic LIKE '\" + msg.req.params.topic.replace(/\\*/g, \"%\") + \"'\" +\n\" AND\" +\n\" timestamp <= '\" + msg.req.params.time + \"'\" +\n\" AND deleted=0\" +\n\" AND (\" + msg.req.authFilter + \")\" +\n\" ORDER BY ID DESC\" +\n\" LIMIT \" + msg.req.params.count + \";\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 300,
+        "wires": [
+            [
+                "adb5b0dd1885c2ad"
+            ]
+        ]
+    },
+    {
+        "id": "da47b3652e7b92b3",
+        "type": "function",
+        "z": "7a5f4958f97241f9",
+        "name": "create 'DURING' query",
+        "func": "// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n msg.req.authFilter = 1;\n// wildcard used for API query is * and this needs to be converted into SQL wildcard character %\nmsg.topic = \"SELECT id,topic,payload,timestamp\" +\n \" FROM thingData WHERE\" +\n \" topic LIKE '\" + msg.req.params.topic.replace(/\\*/g, \"%\") + \"'\" +\n \" AND\" +\n \" timestamp >= '\" + msg.req.params.start + \"'\" +\n \" AND\" +\n \" timestamp <='\" + msg.req.params.end + \"'\" +\n \" AND deleted=0\" +\n \" AND (\" + msg.req.authFilter + \")\" +\n \" ORDER BY ID DESC\" +\n \" LIMIT \" + msg.req.params.count + \";\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 420,
+        "wires": [
+            [
+                "adb5b0dd1885c2ad"
+            ]
+        ]
+    },
+    {
+        "id": "ef9486fd60507be0",
+        "type": "function",
+        "z": "7a5f4958f97241f9",
+        "name": "prepare response",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 300,
+        "wires": [
+            [
+                "59a74a64d989f028"
+            ]
+        ]
+    },
+    {
+        "id": "adb5b0dd1885c2ad",
+        "type": "mysql",
+        "z": "7a5f4958f97241f9",
+        "mydb": "e3e24f894c07d7f9",
+        "name": "",
+        "x": 880,
+        "y": 300,
+        "wires": [
+            [
+                "ef9486fd60507be0"
+            ]
+        ]
+    },
+    {
+        "id": "a22333a7a03bfe82",
+        "type": "http in",
+        "z": "7a5f4958f97241f9",
+        "name": "",
+        "url": "/get/:topic/after/:time/last/:count",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 240,
+        "y": 200,
+        "wires": [
+            [
+                "973440d9c583245b"
+            ]
+        ]
+    },
+    {
+        "id": "63b28dd1a539aebd",
+        "type": "http in",
+        "z": "7a5f4958f97241f9",
+        "name": "",
+        "url": "/get/:topic/before/:time/last/:count",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 250,
+        "y": 300,
+        "wires": [
+            [
+                "086bce34a36f2aab"
+            ]
+        ]
+    },
+    {
+        "id": "6d30481d2b296d86",
+        "type": "http in",
+        "z": "7a5f4958f97241f9",
+        "name": "",
+        "url": "/get/:topic/during/:start/:end/last/:count",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 260,
+        "y": 420,
+        "wires": [
+            [
+                "da47b3652e7b92b3"
+            ]
+        ]
+    },
+    {
+        "id": "59a74a64d989f028",
+        "type": "http response",
+        "z": "7a5f4958f97241f9",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1270,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "e3e24f894c07d7f9",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "iot_proyect_mysql_1",
+        "port": "3306",
+        "db": "tSeriesDB",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]

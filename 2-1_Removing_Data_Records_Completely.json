@@ -1,0 +1,208 @@
+[
+    {
+        "id": "f01d306ffc1bb4c0",
+        "type": "tab",
+        "label": "Flow 7",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ef4f78eb120fe13c",
+        "type": "http in",
+        "z": "f01d306ffc1bb4c0",
+        "name": "",
+        "url": "/purge/:topic/id/:id",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 160,
+        "wires": [
+            [
+                "1f653388623421d7"
+            ]
+        ]
+    },
+    {
+        "id": "3bad21c53ada7020",
+        "type": "http in",
+        "z": "f01d306ffc1bb4c0",
+        "name": "",
+        "url": "/purge/:topic/",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 210,
+        "y": 240,
+        "wires": [
+            [
+                "231007b2db2ecacc"
+            ]
+        ]
+    },
+    {
+        "id": "c7d2665075132fea",
+        "type": "http in",
+        "z": "f01d306ffc1bb4c0",
+        "name": "",
+        "url": "/purge/:topic/first/:count",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 240,
+        "y": 320,
+        "wires": [
+            [
+                "fe710158d5565ee0"
+            ]
+        ]
+    },
+    {
+        "id": "f11ff2a81ef3153a",
+        "type": "http in",
+        "z": "f01d306ffc1bb4c0",
+        "name": "",
+        "url": "/purge/:topic/last/:count",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 240,
+        "y": 400,
+        "wires": [
+            [
+                "c26257584519dfd9"
+            ]
+        ]
+    },
+    {
+        "id": "6d9bb6dc8fdea481",
+        "type": "http response",
+        "z": "f01d306ffc1bb4c0",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1190,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "1f653388623421d7",
+        "type": "function",
+        "z": "f01d306ffc1bb4c0",
+        "name": "create query",
+        "func": "// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n msg.req.authFilter = 1;\n \nmsg.topic = \"DELETE FROM thingData\" +\n \" WHERE deleted=1\" +\n \" AND\" +\n \" topic='\" + msg.req.params.topic + \"'\" +\n \" AND (\" + msg.req.authFilter + \")\" +\n \" AND id=\" + msg.req.params.id + \";\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 160,
+        "wires": [
+            [
+                "d2e537b05dc8b01f"
+            ]
+        ]
+    },
+    {
+        "id": "d2e537b05dc8b01f",
+        "type": "mysql",
+        "z": "f01d306ffc1bb4c0",
+        "mydb": "e3e24f894c07d7f9",
+        "name": "",
+        "x": 740,
+        "y": 280,
+        "wires": [
+            [
+                "b4c464f8fd1e306b"
+            ]
+        ]
+    },
+    {
+        "id": "b4c464f8fd1e306b",
+        "type": "function",
+        "z": "f01d306ffc1bb4c0",
+        "name": "prepare response",
+        "func": "msg.payload = {\n \"found\": msg.payload.affectedRows,\n \"changed\": msg.payload.changedRows,\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 280,
+        "wires": [
+            [
+                "6d9bb6dc8fdea481"
+            ]
+        ]
+    },
+    {
+        "id": "231007b2db2ecacc",
+        "type": "function",
+        "z": "f01d306ffc1bb4c0",
+        "name": "create query",
+        "func": "// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n msg.req.authFilter = 1;\nmsg.topic = \"DELETE FROM thingData\" +\n \" WHERE deleted=1 \" +\n \" AND\" +\n \" topic='\" + msg.req.params.topic + \"'\" +\n \" AND (\" + msg.req.authFilter + \");\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 240,
+        "wires": [
+            [
+                "d2e537b05dc8b01f"
+            ]
+        ]
+    },
+    {
+        "id": "fe710158d5565ee0",
+        "type": "function",
+        "z": "f01d306ffc1bb4c0",
+        "name": "create query",
+        "func": "// if required record count is not specified\n// set default to 1\nif(!msg.req.params.count)\n msg.req.params.count = 1;\n// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n msg.req.authFilter = 1;\nmsg.topic = \"DELETE FROM thingData\" +\n \" WHERE deleted=1\" +\n \" AND\" +\n \" topic='\" + msg.req.params.topic + \"'\" +\n \" AND (\" + msg.req.authFilter + \")\" +\n \" ORDER BY id ASC LIMIT \" + msg.req.params.count + \n\";\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 320,
+        "wires": [
+            [
+                "d2e537b05dc8b01f"
+            ]
+        ]
+    },
+    {
+        "id": "c26257584519dfd9",
+        "type": "function",
+        "z": "f01d306ffc1bb4c0",
+        "name": "create query",
+        "func": "// if required record count is not specified\n// set default to 1\nif(!msg.req.params.count)\n msg.req.params.count = 1;\n// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n msg.req.authFilter = 1;\n \nmsg.topic = \"DELETE FROM thingData\" +\n \" WHERE deleted=1\" +\n \" AND\" +\n \" topic='\" + msg.req.params.topic + \"'\" +\n \" AND (\" + msg.req.authFilter + \")\" +\n \" ORDER BY id DESC LIMIT \" + msg.req.params.count + \";\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 400,
+        "wires": [
+            [
+                "d2e537b05dc8b01f"
+            ]
+        ]
+    },
+    {
+        "id": "e3e24f894c07d7f9",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "iot_proyect_mysql_1",
+        "port": "3306",
+        "db": "tSeriesDB",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]

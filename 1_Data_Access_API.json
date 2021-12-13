@@ -1,0 +1,100 @@
+[
+    {
+        "id": "aad8fa85a3622b3d",
+        "type": "tab",
+        "label": "Flow 4",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "257e6e66defac24e",
+        "type": "http in",
+        "z": "aad8fa85a3622b3d",
+        "name": "",
+        "url": "/get/topicLike/:topic/payloadLike/:payload/last/:count",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 270,
+        "y": 240,
+        "wires": [
+            [
+                "783a9a1d8c653e15"
+            ]
+        ]
+    },
+    {
+        "id": "58d438416446af21",
+        "type": "http response",
+        "z": "aad8fa85a3622b3d",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1230,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "783a9a1d8c653e15",
+        "type": "function",
+        "z": "aad8fa85a3622b3d",
+        "name": "create query",
+        "func": "// if no authentication filter defined or available\n// set the default value as 1\nif(!msg.req.authFilter)\n    msg.req.authFilter = 1;\n    \n// wildcard used for API query is * and this needs to be converted into SQL wildcard character %\nmsg.topic = \"SELECT id,topic,payload,timestamp \" + \n\"FROM thingData WHERE \" + \n\"topic LIKE '\" + msg.req.params.topic.replace(/\\*/g, \"%\") + \"'\" +\n\" AND\" + \n\" payload LIKE '\" + msg.req.params.payload.replace(/\\*/g, \"%\") + \"'\" +\n\" AND deleted=0\" +\n\" AND (\" + msg.req.authFilter + \")\" +\n\" ORDER BY ID DESC\" +\n\" LIMIT \" + msg.req.params.count + \";\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 240,
+        "wires": [
+            [
+                "2913a15848850227"
+            ]
+        ]
+    },
+    {
+        "id": "2913a15848850227",
+        "type": "mysql",
+        "z": "aad8fa85a3622b3d",
+        "mydb": "e3e24f894c07d7f9",
+        "name": "",
+        "x": 840,
+        "y": 240,
+        "wires": [
+            [
+                "576ed44da74fa0a1"
+            ]
+        ]
+    },
+    {
+        "id": "576ed44da74fa0a1",
+        "type": "function",
+        "z": "aad8fa85a3622b3d",
+        "name": "prepare response",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 240,
+        "wires": [
+            [
+                "58d438416446af21"
+            ]
+        ]
+    },
+    {
+        "id": "e3e24f894c07d7f9",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "iot_proyect_mysql_1",
+        "port": "3306",
+        "db": "tSeriesDB",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]
